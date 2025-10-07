@@ -1,0 +1,693 @@
+"use client"
+
+import type React from "react"
+
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import {
+  Package,
+  Users,
+  ShoppingCart,
+  DollarSign,
+  TrendingUp,
+  Eye,
+  Edit,
+  Trash2,
+  Plus,
+  LogOut,
+  Upload,
+  Save,
+  X,
+} from "lucide-react"
+
+interface Product {
+  id: number
+  name: string
+  price: number
+  stock: number
+  status: string
+  image: string | null
+  description?: string
+  category?: string
+  specifications?: { [key: string]: string }
+  sku?: string
+}
+
+export default function AdminDashboard() {
+  const router = useRouter()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalRevenue: 0,
+  })
+  const [recentOrders, setRecentOrders] = useState([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [showAddProduct, setShowAddProduct] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    stock: "",
+    description: "",
+    category: "",
+    sku: "",
+    specifications: {} as { [key: string]: string },
+    image: null as File | null,
+  })
+  const [specKey, setSpecKey] = useState("")
+  const [specValue, setSpecValue] = useState("")
+
+  useEffect(() => {
+    // Check authentication
+    const adminAuth = localStorage.getItem("adminAuth")
+    if (!adminAuth) {
+      router.push("/admin/login")
+    } else {
+      setIsAuthenticated(true)
+      loadDashboardData()
+    }
+  }, [router])
+
+  const loadDashboardData = () => {
+    const savedProducts = JSON.parse(localStorage.getItem("adminProducts") || "[]")
+    const savedOrders = JSON.parse(localStorage.getItem("adminOrders") || "[]")
+
+    setProducts(savedProducts)
+    setRecentOrders(savedOrders)
+    setStats({
+      totalProducts: savedProducts.length,
+      totalOrders: savedOrders.length,
+      totalCustomers: savedOrders.length > 0 ? new Set(savedOrders.map((o: any) => o.customer)).size : 0,
+      totalRevenue: savedOrders.reduce((sum: number, order: any) => sum + order.total, 0),
+    })
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuth")
+    router.push("/admin/login")
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setNewProduct({ ...newProduct, image: file })
+    }
+  }
+
+  const handleAddProduct = () => {
+    if (!newProduct.name || !newProduct.price || !newProduct.stock) {
+      alert("Please fill in all required fields")
+      return
+    }
+
+    const product: Product = {
+      id: Date.now(),
+      name: newProduct.name,
+      price: Number.parseFloat(newProduct.price),
+      stock: Number.parseInt(newProduct.stock),
+      status: "active",
+      description: newProduct.description,
+      category: newProduct.category,
+      sku: newProduct.sku || `SKU-${Date.now()}`,
+      specifications: newProduct.specifications,
+      image: newProduct.image ? URL.createObjectURL(newProduct.image) : null,
+    }
+
+    const updatedProducts = [...products, product]
+    setProducts(updatedProducts)
+    localStorage.setItem("adminProducts", JSON.stringify(updatedProducts))
+
+    // Update stats
+    setStats((prev) => ({
+      ...prev,
+      totalProducts: updatedProducts.length,
+    }))
+
+    // Reset form
+    setNewProduct({
+      name: "",
+      price: "",
+      stock: "",
+      description: "",
+      category: "",
+      sku: "",
+      specifications: {},
+      image: null,
+    })
+    setShowAddProduct(false)
+  }
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product)
+    setNewProduct({
+      name: product.name,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      description: product.description || "",
+      category: product.category || "",
+      sku: product.sku || "",
+      specifications: product.specifications || {},
+      image: null,
+    })
+  }
+
+  const handleSaveEdit = () => {
+    if (!editingProduct || !newProduct.name || !newProduct.price || !newProduct.stock) {
+      alert("Please fill in all required fields")
+      return
+    }
+
+    const updatedProduct: Product = {
+      ...editingProduct,
+      name: newProduct.name,
+      price: Number.parseFloat(newProduct.price),
+      stock: Number.parseInt(newProduct.stock),
+      description: newProduct.description,
+      category: newProduct.category,
+      sku: newProduct.sku,
+      specifications: newProduct.specifications,
+      image: newProduct.image ? URL.createObjectURL(newProduct.image) : editingProduct.image,
+    }
+
+    const updatedProducts = products.map((p) => (p.id === editingProduct.id ? updatedProduct : p))
+    setProducts(updatedProducts)
+    localStorage.setItem("adminProducts", JSON.stringify(updatedProducts))
+
+    // Reset form
+    setEditingProduct(null)
+    setNewProduct({
+      name: "",
+      price: "",
+      stock: "",
+      description: "",
+      category: "",
+      sku: "",
+      specifications: {},
+      image: null,
+    })
+  }
+
+  const handleDeleteProduct = (productId: number) => {
+    if (confirm("Are you sure you want to delete this product?")) {
+      const updatedProducts = products.filter((p) => p.id !== productId)
+      setProducts(updatedProducts)
+      localStorage.setItem("adminProducts", JSON.stringify(updatedProducts))
+
+      setStats((prev) => ({
+        ...prev,
+        totalProducts: updatedProducts.length,
+      }))
+    }
+  }
+
+  const handleAddSpecification = () => {
+    if (specKey && specValue) {
+      setNewProduct({
+        ...newProduct,
+        specifications: {
+          ...newProduct.specifications,
+          [specKey]: specValue,
+        },
+      })
+      setSpecKey("")
+      setSpecValue("")
+    }
+  }
+
+  const handleRemoveSpecification = (key: string) => {
+    const newSpecs = { ...newProduct.specifications }
+    delete newSpecs[key]
+    setNewProduct({ ...newProduct, specifications: newSpecs })
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-100 text-green-800"
+      case "processing":
+        return "bg-yellow-100 text-yellow-800"
+      case "shipped":
+        return "bg-blue-100 text-blue-800"
+      case "low-stock":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  if (!isAuthenticated) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Admin Navigation */}
+      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-8">
+              <Link href="/" className="text-2xl font-bold text-foreground">
+                TTTSL
+              </Link>
+              <Badge variant="secondary">Admin</Badge>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                View Store
+              </Link>
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome back! Here's what's happening with your store.</p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalProducts}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalProducts === 0 ? "No products yet" : "Active products"}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalOrders}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalOrders === 0 ? "No orders yet" : "Total orders"}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalCustomers}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalCustomers === 0 ? "No customers yet" : "Unique customers"}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalRevenue === 0 ? "No revenue yet" : "Total revenue"}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="orders" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="orders">Recent Orders</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="orders">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Orders</CardTitle>
+                <CardDescription>Latest orders from your customers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {recentOrders.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No orders yet. Orders will appear here when customers make purchases.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentOrders.map((order: any) => (
+                      <div
+                        key={order.id}
+                        className="flex items-center justify-between p-4 border border-border rounded-lg"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div>
+                            <p className="font-medium">{order.id}</p>
+                            <p className="text-sm text-muted-foreground">{order.customer}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                          <div className="text-right">
+                            <p className="font-medium">${order.total}</p>
+                            <p className="text-sm text-muted-foreground">{order.date}</p>
+                          </div>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="products">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Products</CardTitle>
+                  <CardDescription>Manage your product inventory</CardDescription>
+                </div>
+                <Button onClick={() => setShowAddProduct(!showAddProduct)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Product
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {(showAddProduct || editingProduct) && (
+                  <div className="mb-6 p-6 border border-border rounded-lg bg-muted/50">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-medium">{editingProduct ? "Edit Product" : "Add New Product"}</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowAddProduct(false)
+                          setEditingProduct(null)
+                          setNewProduct({
+                            name: "",
+                            price: "",
+                            stock: "",
+                            description: "",
+                            category: "",
+                            sku: "",
+                            specifications: {},
+                            image: null,
+                          })
+                        }}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <Label htmlFor="productName">Product Name *</Label>
+                        <Input
+                          id="productName"
+                          value={newProduct.name}
+                          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                          placeholder="Enter product name"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="productPrice">Price ($) *</Label>
+                        <Input
+                          id="productPrice"
+                          type="number"
+                          value={newProduct.price}
+                          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="productStock">Stock Quantity *</Label>
+                        <Input
+                          id="productStock"
+                          type="number"
+                          value={newProduct.stock}
+                          onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="productSku">SKU</Label>
+                        <Input
+                          id="productSku"
+                          value={newProduct.sku}
+                          onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
+                          placeholder="Auto-generated if empty"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="productCategory">Category</Label>
+                        <Select
+                          value={newProduct.category}
+                          onValueChange={(value) => setNewProduct({ ...newProduct, category: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="women">Women</SelectItem>
+                            <SelectItem value="men">Men</SelectItem>
+                            <SelectItem value="unisex">Unisex</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="productImage">Product Image</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="productImage"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                          />
+                          <Upload className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <Label htmlFor="productDescription">Description</Label>
+                      <Textarea
+                        id="productDescription"
+                        value={newProduct.description}
+                        onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                        placeholder="Enter product description"
+                        rows={3}
+                      />
+                    </div>
+
+                    {/* Specifications Section */}
+                    <div className="mb-4">
+                      <Label>Specifications</Label>
+                      <div className="flex gap-2 mb-2">
+                        <Input
+                          placeholder="Specification name (e.g., Material)"
+                          value={specKey}
+                          onChange={(e) => setSpecKey(e.target.value)}
+                        />
+                        <Input
+                          placeholder="Specification value (e.g., 100% Cotton)"
+                          value={specValue}
+                          onChange={(e) => setSpecValue(e.target.value)}
+                        />
+                        <Button type="button" onClick={handleAddSpecification}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      {Object.entries(newProduct.specifications).length > 0 && (
+                        <div className="space-y-2">
+                          {Object.entries(newProduct.specifications).map(([key, value]) => (
+                            <div
+                              key={key}
+                              className="flex items-center justify-between p-2 bg-background rounded border"
+                            >
+                              <span className="text-sm">
+                                <strong>{key}:</strong> {value}
+                              </span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveSpecification(key)}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      {editingProduct ? (
+                        <Button onClick={handleSaveEdit}>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </Button>
+                      ) : (
+                        <Button onClick={handleAddProduct}>Add Product</Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowAddProduct(false)
+                          setEditingProduct(null)
+                          setNewProduct({
+                            name: "",
+                            price: "",
+                            stock: "",
+                            description: "",
+                            category: "",
+                            sku: "",
+                            specifications: {},
+                            image: null,
+                          })
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {products.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No products yet. Add your first product to get started.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {products.map((product: Product) => (
+                      <div
+                        key={product.id}
+                        className="flex items-center justify-between p-4 border border-border rounded-lg"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                            {product.image ? (
+                              <img
+                                src={product.image || "/placeholder.svg"}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Package className="w-6 h-6 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">{product.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              SKU: {product.sku} | Stock: {product.stock} units
+                            </p>
+                            {product.category && (
+                              <Badge variant="outline" className="mt-1">
+                                {product.category}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge className={getStatusColor(product.status)}>
+                            {product.stock < 10 ? "Low Stock" : "Active"}
+                          </Badge>
+                          <div className="text-right">
+                            <p className="font-medium">${product.price}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="sm">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleEditProduct(product)}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteProduct(product.id)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sales Trend</CardTitle>
+                  <CardDescription>Monthly sales performance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-center h-48 text-muted-foreground">
+                    <div className="text-center">
+                      <TrendingUp className="w-12 h-12 mx-auto mb-4" />
+                      <p>Sales analytics will appear here when you have orders</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Products</CardTitle>
+                  <CardDescription>Best selling items this month</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {products.length === 0 ? (
+                    <div className="flex items-center justify-center h-32 text-muted-foreground">
+                      <p className="text-sm">Add products to see top performers</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {products.slice(0, 3).map((product: Product, index: number) => (
+                        <div key={product.id} className="flex justify-between items-center">
+                          <span className="text-sm">{product.name}</span>
+                          <span className="text-sm font-medium">0 sold</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  )
+}
