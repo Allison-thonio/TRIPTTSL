@@ -77,8 +77,8 @@
 
 @layer base {
   * {
-    @apply border-border;
-    outline-color: rgb(var(--ring) / 0.5);
+    @apply border-[hsl(var(--border))];
+    outline-color: hsl(var(--ring) / 0.5);
   }
   body {
     @apply bg-background text-foreground;
