@@ -2,96 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Updated color palette for TTTSL brand - earthy, minimalist aesthetic */
-  --background: oklch(1 0 0); /* Pure white */
-  --foreground: oklch(0.35 0 0); /* Deep gray #4b5563 equivalent */
-  --card: oklch(0.98 0.02 85); /* Soft off-white #fefce8 equivalent */
-  --card-foreground: oklch(0.35 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.35 0 0);
-  --primary: oklch(0.45 0.15 85); /* Earthy yellow #a16207 equivalent */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.65 0.25 285); /* Purple accent #8b5cf6 equivalent */
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.98 0.02 85); /* Soft off-white for sections */
-  --muted-foreground: oklch(0.35 0 0);
-  --accent: oklch(0.65 0.25 285); /* Purple accent for CTAs */
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.92 0 0); /* Light gray borders */
-  --input: oklch(0.96 0 0); /* Input field background */
-  --ring: oklch(0.65 0.25 285); /* Focus ring matches accent */
-  --chart-1: oklch(0.45 0.15 85);
-  --chart-2: oklch(0.65 0.25 285);
-  --chart-3: oklch(0.98 0.02 85);
-  --chart-4: oklch(0.35 0 0);
-  --chart-5: oklch(1 0 0);
-  --radius: 0.5rem; /* Slightly smaller radius for minimalist feel */
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.35 0 0);
-  --sidebar-primary: oklch(0.98 0.02 85);
-  --sidebar-primary-foreground: oklch(0.35 0 0);
-  --sidebar-accent: oklch(0.65 0.25 285);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.92 0 0);
-  --sidebar-ring: oklch(0.65 0.25 285);
-  --swanky-pink: #ff66b2;
-}
+@layer base {
+  :root {
+    /* Updated color palette for TTTSL brand - earthy, minimalist aesthetic */
+    --background: oklch(1 0 0); /* Pure white */
+    --foreground: oklch(0.35 0 0); /* Deep gray #4b5563 equivalent */
+    --card: oklch(0.98 0.02 85); /* Soft off-white #fefce8 equivalent */
+    --card-foreground: oklch(0.35 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.35 0 0);
+    --primary: oklch(0.45 0.15 85); /* Earthy yellow #a16207 equivalent */
+    --primary-foreground: oklch(1 0 0);
+    --secondary: oklch(0.65 0.25 285); /* Purple accent #8b5cf6 equivalent */
+    --secondary-foreground: oklch(1 0 0);
+    --muted: oklch(0.98 0.02 85); /* Soft off-white for sections */
+    --muted-foreground: oklch(0.35 0 0);
+    --accent: oklch(0.65 0.25 285); /* Purple accent for CTAs */
+    --accent-foreground: oklch(1 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(1 0 0);
+    --border: oklch(0.92 0 0); /* Light gray borders */
+    --input: oklch(0.96 0 0); /* Input field background */
+    --ring: oklch(0.65 0.25 285); /* Focus ring matches accent */
+    --chart-1: oklch(0.45 0.15 85);
+    --chart-2: oklch(0.65 0.25 285);
+    --chart-3: oklch(0.98 0.02 85);
+    --chart-4: oklch(0.35 0 0);
+    --chart-5: oklch(1 0 0);
+    --radius: 0.5rem; /* Slightly smaller radius for minimalist feel */
+    --sidebar: oklch(1 0 0);
+    --sidebar-foreground: oklch(0.35 0 0);
+    --sidebar-primary: oklch(0.98 0.02 85);
+    --sidebar-primary-foreground: oklch(0.35 0 0);
+    --sidebar-accent: oklch(0.65 0.25 285);
+    --sidebar-accent-foreground: oklch(1 0 0);
+    --sidebar-border: oklch(0.92 0 0);
+    --sidebar-ring: oklch(0.65 0.25 285);
+  }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.55 0.15 85); /* Lighter earthy tone for dark mode */
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.75 0.25 285); /* Lighter purple for dark mode */
-  --secondary-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.75 0.25 285);
-  --accent-foreground: oklch(0.145 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.75 0.25 285);
-  --chart-1: oklch(0.55 0.15 85);
-  --chart-2: oklch(0.75 0.25 285);
-  --chart-3: oklch(0.269 0 0);
-  --chart-4: oklch(0.708 0 0);
-  --chart-5: oklch(0.985 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.269 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.75 0.25 285);
-  --sidebar-accent-foreground: oklch(0.145 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.75 0.25 285);
+  .dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.145 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.145 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.55 0.15 85); /* Lighter earthy tone for dark mode */
+    --primary-foreground: oklch(0.145 0 0);
+    --secondary: oklch(0.75 0.25 285); /* Lighter purple for dark mode */
+    --secondary-foreground: oklch(0.145 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.75 0.25 285);
+    --accent-foreground: oklch(0.145 0 0);
+    --destructive: oklch(0.396 0.141 25.723);
+    --destructive-foreground: oklch(0.637 0.237 25.331);
+    --border: oklch(0.269 0 0);
+    --input: oklch(0.269 0 0);
+    --ring: oklch(0.75 0.25 285);
+    --chart-1: oklch(0.55 0.15 85);
+    --chart-2: oklch(0.75 0.25 285);
+    --chart-3: oklch(0.269 0 0);
+    --chart-4: oklch(0.708 0 0);
+    --chart-5: oklch(0.985 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.269 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.75 0.25 285);
+    --sidebar-accent-foreground: oklch(0.145 0 0);
+    --sidebar-border: oklch(0.269 0 0);
+    --sidebar-ring: oklch(0.75 0.25 285);
+  }
 }
 
 @layer base {
-  :root {
-    --border-color: hsl(var(--border));
-  }
   * {
-    border-color: var(--border-color);
+    @apply border-border;
   }
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-background text-foreground;
   }
 }
 
 /* Swanky brand styling for the brush script text next to the logo */
 .swanky-brand {
   font-family: "Brush Script MT", "Brush Script", cursive;
-  color: var(--swanky-pink);
+  color: #ff66b2;
   letter-spacing: 0.01em;
   display: inline-block;
 }
