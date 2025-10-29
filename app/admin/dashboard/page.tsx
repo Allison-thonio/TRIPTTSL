@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -71,7 +70,7 @@ export default function AdminDashboard() {
   const [specKey, setSpecKey] = useState("")
   const [specValue, setSpecValue] = useState("")
 
-  useState(() => {
+  useEffect(() => {
     loadDashboardData()
   }, [])
 
@@ -246,7 +245,6 @@ export default function AdminDashboard() {
         return "bg-gray-100 text-gray-800"
     }
   }
-
 
   return (
    <AdminAuthGuard>
@@ -481,7 +479,7 @@ export default function AdminDashboard() {
                       <div>
                         <Label htmlFor="productBrand">Brand</Label>
                         <Select
-                          value={(newProduct as any).brand}
+                          value={newProduct.brand}
                           onValueChange={(value) => setNewProduct({ ...newProduct, brand: value })}
                         >
                           <SelectTrigger>
@@ -628,11 +626,11 @@ export default function AdminDashboard() {
                                 {product.category}
                               </Badge>
                             )}
-                              {product.brand && (
-                                <Badge variant="secondary" className="mt-1 ml-2">
-                                  {product.brand}
-                                </Badge>
-                              )}
+                            {product.brand && (
+                              <Badge variant="secondary" className="mt-1 ml-2">
+                                {product.brand}
+                              </Badge>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -706,6 +704,6 @@ export default function AdminDashboard() {
         </Tabs>
       </div>
     </div>
-     </AdminAuthGuard>
-  )
+   </AdminAuthGuard>
+  );
 }

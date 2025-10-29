@@ -9,6 +9,8 @@ import Link from "next/link"
 import Header from "@/components/header"
 import { Minus, Plus, X, ShoppingBag, Truck, Shield, ArrowLeft } from "lucide-react"
 import { SearchBar } from "@/components/search-bar"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 
 // Mock cart data
 const initialCartItems = [
@@ -63,49 +65,10 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center">
-                <Link href="/" className="text-2xl font-bold text-foreground">
-                  TTTSL
-                </Link>
-              </div>
-
-              <div className="hidden md:block">
-                <div className="ml-10 flex items-baseline space-x-8">
-                  <Link href="/shop" className="text-foreground hover:text-primary transition-colors">
-                    Shop
-                  </Link>
-                  <Link href="/women" className="text-foreground hover:text-primary transition-colors">
-                    Women
-                  </Link>
-                  <Link href="/men" className="text-foreground hover:text-primary transition-colors">
-                    Men
-                  </Link>
-                  <Link href="/accessories" className="text-foreground hover:text-primary transition-colors">
-                    Accessories
-                  </Link>
-                  <Link href="/about" className="text-foreground hover:text-primary transition-colors">
-                    About
-                  </Link>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <SearchBar />
-                <Link href="/auth/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Account
-                </Link>
-                <span className="text-foreground hover:text-primary transition-colors">Cart (0)</span>
-              </div>
-            </div>
-          </div>
-        </nav>
-
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navbar />
         {/* Empty Cart */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 flex-1">
           <div className="max-w-md mx-auto text-center">
             <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
             <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
@@ -117,53 +80,15 @@ export default function CartPage() {
             </Button>
           </div>
         </div>
+        <Footer />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-foreground">
-                TTTSL
-              </Link>
-            </div>
-
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
-                <Link href="/shop" className="text-foreground hover:text-primary transition-colors">
-                  Shop
-                </Link>
-                <Link href="/women" className="text-foreground hover:text-primary transition-colors">
-                  Women
-                </Link>
-                <Link href="/men" className="text-foreground hover:text-primary transition-colors">
-                  Men
-                </Link>
-                <Link href="/accessories" className="text-foreground hover:text-primary transition-colors">
-                  Accessories
-                </Link>
-                <Link href="/about" className="text-foreground hover:text-primary transition-colors">
-                  About
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <SearchBar />
-              <Link href="/auth/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                Account
-              </Link>
-              <span className="text-foreground hover:text-primary transition-colors">Cart ({cartItems.length})</span>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
         {/* Back to Shopping */}
         <div className="mb-8">
           <Button variant="ghost" asChild className="text-muted-foreground hover:text-primary">
@@ -266,7 +191,44 @@ export default function CartPage() {
                     <span>Shipping</span>
                     <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
                   </div>
-                          <Header />
+
+                  <div className="flex justify-between text-sm">
+                    <span>Tax</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <Separator className="my-4" />
+
+                <div className="flex justify-between font-semibold text-lg mb-6">
+                  <span>Total</span>
+                  <span>${total.toFixed(2)}</span>
+                </div>
+
+                {/* Promo Code */}
+                {!promoApplied && (
+                  <div className="mb-6">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Promo code"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button variant="outline" onClick={applyPromoCode}>
+                        Apply
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">Try: WELCOME10</p>
+                  </div>
+                )}
+
+                <Button asChild className="w-full mb-4" size="lg">
+                  <Link href="/checkout">Proceed to Checkout</Link>
+                </Button>
+
+                {/* Features */}
+                <div className="space-y-3 pt-4 border-t border-border">
                   <div className="flex items-center gap-3 text-sm">
                     <Truck className="w-4 h-4 text-muted-foreground" />
                     <span>Free shipping on orders over $75</span>
@@ -281,6 +243,7 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

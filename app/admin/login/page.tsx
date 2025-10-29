@@ -1,14 +1,13 @@
 "use client"
 
-import { useEffect } from "react"
+import type React from "react"
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-
-export default function AdminLoginRedirect() {
-  const router = useRouter()
-
-  useEffect(() => {
-    router.replace("/auth/login")
-  }, [router])
-
-  return null
-}
+import { Eye, EyeOff, AlertCircle } from "lucide-react"

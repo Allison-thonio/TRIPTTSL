@@ -4,251 +4,359 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import Header from "@/components/header"
-import { Heart, Share2, Leaf } from "lucide-react"
+import { Search, Filter, Grid, List, Heart } from "lucide-react"
 
-// Mock product data - fallback when no admin product exists
-const getProduct = (id: string) => {
-  const products: any = {
-    "1": {
-      id: 1,
-      name: "Essential Cotton Tee",
-      price: 32,
-      originalPrice: null,
-      category: "women",
-      colors: [
-        { name: "White", value: "white", hex: "#ffffff" },
-        { name: "Black", value: "black", hex: "#000000" },
-        { name: "Gray", value: "gray", hex: "#6b7280" },
-      ],
-      sizes: ["XS", "S", "M", "L", "XL"],
-      images: [
-        "/placeholder.svg?height=600&width=500&text=Cotton+Tee+Front",
-        "/placeholder.svg?height=600&width=500&text=Cotton+Tee+Back",
-      ],
-      description: "Our Essential Cotton Tee is crafted from 100% organic cotton.",
-      details: { material: "100% Organic Cotton", fit: "Relaxed fit", care: "Machine wash cold", origin: "Portugal" },
-            sustainability: [
-              "Made with 100% organic cotton",
-              "GOTS certified production",
-              "Carbon-neutral shipping",
-            ],
-            isNew: true,
-            isSale: false,
-            inStock: true,
-          },
-        }
-        return products[id as keyof typeof products] || products["1"]
+// Mock search results data
+const mockProducts = [
+  {
+    id: 1,
+    name: "Essential Cotton Tee",
+    price: 32,
+    originalPrice: null,
+    category: "women",
+    image: "/placeholder.svg?height=400&width=300&text=Cotton+Tee",
+    description: "Our Essential Cotton Tee is crafted from 100% organic cotton.",
+    isNew: true,
+    isSale: false,
+    inStock: true,
+  },
+  {
+    id: 2,
+    name: "Organic Denim Jacket",
+    price: 128,
+    originalPrice: null,
+    category: "women",
+    image: "/placeholder.svg?height=400&width=300&text=Denim+Jacket",
+    description: "A timeless denim jacket crafted from organic cotton denim.",
+    isNew: false,
+    isSale: false,
+    inStock: true,
+  },
+  {
+    id: 3,
+    name: "Linen Blend Shirt",
+    price: 68,
+    originalPrice: 85,
+    category: "men",
+    image: "/placeholder.svg?height=400&width=300&text=Linen+Shirt",
+    description: "Lightweight linen blend shirt for warm weather.",
+    isNew: false,
+    isSale: true,
+    inStock: true,
+  },
+  {
+    id: 4,
+    name: "Wool Blend Sweater",
+    price: 98,
+    originalPrice: null,
+    category: "men",
+    image: "/placeholder.svg?height=400&width=300&text=Wool+Sweater",
+    description: "Warm and comfortable wool blend sweater.",
+    isNew: true,
+    isSale: false,
+    inStock: false,
+  },
+]
+
+export default function SearchPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [products, setProducts] = useState(mockProducts)
+  const [filteredProducts, setFilteredProducts] = useState(mockProducts)
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [priceRange, setPriceRange] = useState("all")
+  const [sortBy, setSortBy] = useState("relevance")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [wishlistedItems, setWishlistedItems] = useState<number[]>([])
+
+  // Filter products based on search and filters
+  useEffect(() => {
+    let results = [...products]
+
+    // Apply search filter
+    if (searchQuery) {
+      results = results.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
+
+    // Apply category filter
+    if (selectedCategory !== "all") {
+      results = results.filter(product => product.category === selectedCategory)
+    }
+
+    // Apply price range filter
+    if (priceRange !== "all") {
+      switch (priceRange) {
+        case "under-50":
+          results = results.filter(product => product.price < 50)
+          break
+        case "50-100":
+          results = results.filter(product => product.price >= 50 && product.price <= 100)
+          break
+        case "over-100":
+          results = results.filter(product => product.price > 100)
+          break
       }
-      
-      export default function ProductDetailPage({ params }: { params: { id: string } }) {
-          const initial = getProduct(params.id)
-          const [product, setProduct] = useState<any>(initial)
-          const [selectedColor, setSelectedColor] = useState<any>(initial.colors?.[0] || { name: "Default", value: "default", hex: "#ffffff" })
-          const [selectedSize, setSelectedSize] = useState("")
-          const [selectedImage, setSelectedImage] = useState(0)
-          const [quantity, setQuantity] = useState(1)
-          const [isWishlisted, setIsWishlisted] = useState(false)
+    }
 
-          useEffect(() => {
-            try {
-              const saved = JSON.parse(localStorage.getItem("adminProducts") || "[]")
-              const found = saved.find((p: any) => String(p.id) === String(params.id))
-              if (found) {
-                if (!found.images && found.image) found.images = [found.image]
-                setProduct(found)
-              }
-            } catch (e) {
-              // ignore
-            }
-          }, [params.id])
+    // Apply sorting
+    switch (sortBy) {
+      case "price-low":
+        results.sort((a, b) => a.price - b.price)
+        break
+      case "price-high":
+        results.sort((a, b) => b.price - a.price)
+        break
+      case "newest":
+        results.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0))
+        break
+      case "name":
+        results.sort((a, b) => a.name.localeCompare(b.name))
+        break
+    }
 
-          useEffect(() => {
-            if (product?.colors && product.colors.length > 0) setSelectedColor(product.colors[0])
-            setSelectedSize("")
-            setSelectedImage(0)
-          }, [product])
+    setFilteredProducts(results)
+  }, [searchQuery, selectedCategory, priceRange, sortBy, products])
 
-          const handleAddToCart = () => {
-            if (!selectedSize) {
-              alert("Please select a size")
-              return
-            }
-            alert(`Added ${quantity} ${product.name} (${selectedColor.name}, ${selectedSize}) to cart`)
-          }
+  const toggleWishlist = (productId: number) => {
+    setWishlistedItems(prev =>
+      prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    )
+  }
 
-          return (
-            <div className="min-h-screen bg-background">
-              <Header />
+  const clearFilters = () => {
+    setSearchQuery("")
+    setSelectedCategory("all")
+    setPriceRange("all")
+    setSortBy("relevance")
+  }
 
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
-                  <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-                  <span>/</span>
-                  <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
-                  <span>/</span>
-                  <span className="text-foreground">{product.name}</span>
-                </div>
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                  <div className="space-y-4">
-                    <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-muted">
-                      <img src={product.images?.[selectedImage] || "/placeholder.svg"} alt={product.name} className="w-full h-full object-cover" />
-                      {product.isNew && <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground">New</Badge>}
-                    </div>
-                    <div className="flex gap-2 overflow-x-auto">
-                      {(product.images || []).map((image: string, index: number) => (
-                        <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === index ? "border-primary" : "border-transparent"}`}>
-                          <img src={image || "/placeholder.svg"} alt={`${product.name} ${index}`} className="w-full h-full object-cover" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-4">Search Products</h1>
+          
+          {/* Search Input */}
+          <div className="relative max-w-2xl">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              type="text"
+              placeholder="Search for products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full"
+            />
+          </div>
+        </div>
 
-                  <div className="space-y-6">
-                    <div>
-                      <h1 className="text-3xl font-bold text-foreground mb-2">{product.name}</h1>
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl font-bold text-foreground">${product.price}</span>
-                          {product.originalPrice && <span className="text-lg text-muted-foreground line-through">${product.originalPrice}</span>}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" onClick={() => setIsWishlisted(!isWishlisted)} className={isWishlisted ? "text-red-500" : "text-muted-foreground"}>
-                            <Heart className="w-4 h-4" fill={isWishlisted ? "currentColor" : "none"} />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-muted-foreground"><Share2 className="w-4 h-4" /></Button>
-                        </div>
-                      </div>
-                      <p className="text-muted-foreground leading-relaxed">{product.description}</p>
-                    </div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar */}
+          <div className="lg:w-64 space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">Filters</h3>
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-primary">
+                Clear All
+              </Button>
+            </div>
 
-                    <div>
-                      <h3 className="font-medium mb-3">Color: <span className="font-normal">{selectedColor?.name}</span></h3>
-                      <div className="flex gap-2">
-                        {(product.colors || []).map((color: any) => (
-                          <button key={color.value} onClick={() => setSelectedColor(color)} className={`w-8 h-8 rounded-full border-2 transition-colors ${selectedColor?.value === color.value ? "border-primary" : "border-border"}`} style={{ backgroundColor: color.hex }} title={color.name} />
-                        ))}
-                      </div>
-                    </div>
+            {/* Category Filter */}
+            <div>
+              <h4 className="font-medium mb-3">Category</h4>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="women">Women</SelectItem>
+                  <SelectItem value="men">Men</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-                    <div>
-                      <h3 className="font-medium mb-3">Size</h3>
-                      <div className="grid grid-cols-5 gap-2">
-                        {(product.sizes || []).map((size: any) => (
-                          <button key={size} onClick={() => setSelectedSize(size)} className={`py-2 px-3 border rounded-md text-sm font-medium transition-colors ${selectedSize === size ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary"}`}>
-                            {size}
-                          </button>
-                        ))}
-                      </div>
-                      <Link href="/size-guide" className="text-sm text-primary hover:underline mt-2 inline-block">Size Guide</Link>
-                    </div>
+            {/* Price Filter */}
+            <div>
+              <h4 className="font-medium mb-3">Price Range</h4>
+              <Select value={priceRange} onValueChange={setPriceRange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select price range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Prices</SelectItem>
+                  <SelectItem value="under-50">Under $50</SelectItem>
+                  <SelectItem value="50-100">$50 - $100</SelectItem>
+                  <SelectItem value="over-100">Over $100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-                    <div>
-                      <h3 className="font-medium mb-3">Quantity</h3>
-                      <div className="flex items-center gap-3">
-                        <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 border border-border rounded-md flex items-center justify-center hover:bg-muted transition-colors">-</button>
-                        <span className="w-8 text-center">{quantity}</span>
-                        <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 border border-border rounded-md flex items-center justify-center hover:bg-muted transition-colors">+</button>
-                      </div>
-                    </div>
+            {/* Sort Options */}
+            <div>
+              <h4 className="font-medium mb-3">Sort By</h4>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevance</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="name">Name: A to Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-                    <div className="space-y-3">
-                      <Button onClick={handleAddToCart} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" size="lg">Add to Cart - ${(product.price * quantity).toFixed(2)}</Button>
-                      <Button variant="outline" className="w-full bg-transparent" size="lg">Buy Now</Button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-16">
-                  <Tabs defaultValue="details" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="details">Details</TabsTrigger>
-                      <TabsTrigger value="sustainability">Sustainability</TabsTrigger>
-                      <TabsTrigger value="care">Care & Fit</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="details" className="mt-6">
-                      <Card>
-                        <CardContent className="p-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <h3 className="font-semibold mb-4">Product Details</h3>
-                              <dl className="space-y-2">
-                                <div className="flex justify-between">
-                                  <dt className="text-muted-foreground">Material:</dt>
-                                  <dd>{product.details?.material}</dd>
-                                </div>
-                                <div className="flex justify-between">
-                                  <dt className="text-muted-foreground">Fit:</dt>
-                                  <dd>{product.details?.fit}</dd>
-                                </div>
-                                <div className="flex justify-between">
-                                  <dt className="text-muted-foreground">Origin:</dt>
-                                  <dd>{product.details?.origin}</dd>
-                                </div>
-                              </dl>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold mb-4">Features</h3>
-                              <ul className="space-y-2 text-sm">
-                                <li>• Soft, breathable organic cotton</li>
-                                <li>• Pre-shrunk for consistent fit</li>
-                                <li>• Reinforced seams for durability</li>
-                              </ul>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    <TabsContent value="sustainability" className="mt-6">
-                      <Card>
-                        <CardContent className="p-6">
-                          <h3 className="font-semibold mb-4">Our Commitment to Sustainability</h3>
-                          <div className="space-y-4">
-                            {(product.sustainability || []).map((item: string, index: number) => (
-                              <div key={index} className="flex items-start gap-3">
-                                <Leaf className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                                <span className="text-sm">{item}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <Separator className="my-6" />
-                          <div className="text-sm text-muted-foreground">
-                            <p>We believe in transparency throughout our supply chain.</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    <TabsContent value="care" className="mt-6">
-                      <Card>
-                        <CardContent className="p-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <h3 className="font-semibold mb-4">Care Instructions</h3>
-                              <div className="space-y-2 text-sm">
-                                <p>• {product.details?.care}</p>
-                              </div>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold mb-4">Fit Guide</h3>
-                              <div className="space-y-2 text-sm">
-                                <p>• {product.details?.fit}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                  </Tabs>
-                </div>
+            {/* View Mode Toggle */}
+            <div>
+              <h4 className="font-medium mb-3">View</h4>
+              <div className="flex border border-border rounded-md p-1">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="flex-1"
+                >
+                  <Grid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="flex-1"
+                >
+                  <List className="w-4 h-4" />
+                </Button>
               </div>
             </div>
-          )
-        }
-            {/* Features */}
+          </div>
+
+          {/* Results Section */}
+          <div className="flex-1">
+            {/* Results Header */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-muted-foreground">
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
+                {searchQuery && ` for "${searchQuery}"`}
+              </p>
+            </div>
+
+            {/* Products Grid/List */}
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No products found</h3>
+                <p className="text-muted-foreground mb-4">
+                  Try adjusting your search or filters to find what you're looking for.
+                </p>
+                <Button onClick={clearFilters}>Clear Filters</Button>
+              </div>
+            ) : (
+              <div className={
+                viewMode === "grid" 
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  : "space-y-6"
+              }>
+                {filteredProducts.map((product) => (
+                  <Card key={product.id} className="group overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className={viewMode === "grid" ? "" : "flex"}>
+                        {/* Product Image */}
+                        <div className={
+                          viewMode === "grid" 
+                            ? "relative aspect-[3/4] overflow-hidden"
+                            : "relative w-48 aspect-[3/4] overflow-hidden flex-shrink-0"
+                        }>
+                          <Link href={`/product/${product.id}`}>
+                            <img
+                              src={product.image || "/placeholder.svg"}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </Link>
+                          
+                          {/* Badges */}
+                          <div className="absolute top-2 left-2 space-y-1">
+                            {product.isNew && (
+                              <Badge className="bg-accent text-accent-foreground">New</Badge>
+                            )}
+                            {product.isSale && (
+                              <Badge className="bg-red-500 text-white">Sale</Badge>
+                            )}
+                            {!product.inStock && (
+                              <Badge variant="secondary" className="bg-muted text-muted-foreground">
+                                Out of Stock
+                              </Badge>
+                            )}
+                          </div>
+
+                          {/* Wishlist Button */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background"
+                            onClick={() => toggleWishlist(product.id)}
+                          >
+                            <Heart
+                              className="w-4 h-4"
+                              fill={wishlistedItems.includes(product.id) ? "currentColor" : "none"}
+                            />
+                          </Button>
+                        </div>
+
+                        {/* Product Info */}
+                        <div className={viewMode === "grid" ? "p-4" : "p-6 flex-1"}>
+                          <div className="flex justify-between items-start mb-2">
+                            <Link href={`/product/${product.id}`}>
+                              <h3 className="font-medium hover:text-primary transition-colors line-clamp-2">
+                                {product.name}
+                              </h3>
+                            </Link>
+                          </div>
+
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                            {product.description}
+                          </p>
+
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-lg font-bold">${product.price}</span>
+                            {product.originalPrice && (
+                              <span className="text-sm text-muted-foreground line-through">
+                                ${product.originalPrice}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {product.category}
+                            </Badge>
+                            <Button size="sm" disabled={!product.inStock}>
+                              {product.inStock ? "Add to Cart" : "Out of Stock"}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

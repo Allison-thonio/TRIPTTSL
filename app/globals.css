@@ -76,24 +76,19 @@
 }
 
 @layer base {
-  :root {
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-  }
   * {
-    border-color: var(--border);
+    @apply border-border;
     outline-color: rgb(var(--ring) / 0.5);
   }
   body {
-    background-color: var(--background);
-    color: var(--foreground);
+    @apply bg-background text-foreground;
   }
+}
 
-  /* Swanky brand styling for the brush script text next to the logo */
-  .swanky-brand {
-    font-family: "Brush Script MT", "Brush Script", cursive;
-    color: var(--swanky-pink);
-    letter-spacing: 0.01em;
-    display: inline-block;
-  }
+/* Swanky brand styling for the brush script text next to the logo */
+.swanky-brand {
+  font-family: "Brush Script MT", "Brush Script", cursive;
+  color: var(--swanky-pink);
+  letter-spacing: 0.01em;
+  display: inline-block;
 }

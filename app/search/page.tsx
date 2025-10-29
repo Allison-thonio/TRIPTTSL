@@ -109,30 +109,49 @@ function SearchResults() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold">Search results for "{query}"</h2>
-          <div className="flex items-center gap-3">
+        {/* Search Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-balance">
+            {query ? `Search Results for "${query}"` : "All Products"}
+          </h1>
+          <p className="text-muted-foreground">
+            {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"} found
+          </p>
+        </div>
+
+        {/* Filters and Sorting */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8 p-6 bg-muted/30 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Filter:</span>
+            <div className="flex gap-2">
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant={filterCategory === category ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilterCategory(category ?? "")}
+                  className={filterCategory === category ? "bg-primary text-primary-foreground" : "bg-transparent"}
+                >
+                  {category === "all" ? "All" : category}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:ml-auto">
+            <span className="text-sm font-medium">Sort by:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border rounded px-2 py-1 text-sm"
+              className="px-3 py-1 border border-border rounded-md bg-background text-sm"
             >
               <option value="relevance">Relevance</option>
               <option value="name">Name A-Z</option>
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
-            </select>
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="border rounded px-2 py-1 text-sm"
-            >
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
             </select>
           </div>
         </div>

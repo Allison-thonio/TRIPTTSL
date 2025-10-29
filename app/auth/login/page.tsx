@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import Header from "@/components/header"
+
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 
@@ -98,10 +99,18 @@ export default function CustomerLogin() {
   return (
     <div className="min-h-screen bg-background">
       {/* Minimal Navigation */}
-      <Header />
-
-      <div className="flex items-center justify-center py-16 px-4">
-        <div className="w-full max-w-md">
+      <nav className="border-b border-border">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/" className="text-2xl font-bold text-foreground">
+              TTTSL
+            </Link>
+            <Link href="/shop" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Continue Shopping
+            </Link>
+          </div>
+        </div>
+      </nav>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2 text-balance">Welcome Back</h1>
             <p className="text-muted-foreground text-pretty">Sign in to your account to continue shopping</p>
@@ -211,7 +220,5 @@ export default function CustomerLogin() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
   )
 }

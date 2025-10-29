@@ -110,11 +110,22 @@ export default function CustomerRegister() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
 
-      <div className="flex items-center justify-center py-16 px-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
+      <Header />
+      {/* Minimal Navigation */}
+      <nav className="border-b border-border">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/" className="text-2xl font-bold text-foreground">
+              TTTSL
+            </Link>
+            <Link href="/shop" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Continue Shopping
+            </Link>
+          </div>
+        </div>
+      </nav>
+        <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2 text-balance">Join TTTSL</h1>
             <p className="text-muted-foreground text-pretty">Create your account to start shopping ethically</p>
           </div>
@@ -271,7 +282,5 @@ export default function CustomerRegister() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
   )
 }

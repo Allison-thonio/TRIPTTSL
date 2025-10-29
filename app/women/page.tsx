@@ -4,15 +4,12 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SearchBar } from "@/components/search-bar"
-import Link from "next/link"
-import Header from "@/components/header"
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
+import Link from "next/link"
 import { Filter, Grid, List } from "lucide-react"
 
-export default function ShopPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all")
+export default function WomenPage() {
   const [priceRange, setPriceRange] = useState<string>("all")
   const [sortBy, setSortBy] = useState<string>("newest")
   const [products, setProducts] = useState<any[]>([])
@@ -24,10 +21,9 @@ export default function ShopPage() {
     setProducts(savedProducts)
   }, [])
 
-  // Filter products based on selected filters
+  // Filter products for women
   const filteredProducts = products.filter((product) => {
-    if (selectedCategory !== "all" && product.category !== selectedCategory) return false
-
+    if (product.category !== "women") return false
     if (priceRange !== "all") {
       const price = product.price
       switch (priceRange) {
@@ -45,11 +41,10 @@ export default function ShopPage() {
           break
       }
     }
-
     return true
   })
 
-  // Sort products
+  // Sorting logic for filtered products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
@@ -60,49 +55,25 @@ export default function ShopPage() {
         return a.name.localeCompare(b.name)
       case "newest":
       default:
-        return b.id - a.id
+        return (b.createdAt || 0) - (a.createdAt || 0)
     }
   })
 
-  // Clear filters handler
-  const clearFilters = () => {
-    setSelectedCategory("all")
+  function clearFilters() {
     setPriceRange("all")
-    setSortBy("newest")
   }
 
   return (
     <>
       <Navbar />
       <div className="min-h-screen bg-stone-50">
-        {/* Main shop content */}
         <div className="bg-white py-12">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-light text-stone-900 mb-4 tracking-wide">Shop All</h1>
+              <h1 className="text-4xl font-light text-stone-900 mb-4 tracking-wide">Women's Collection</h1>
               <p className="text-stone-600 max-w-2xl mx-auto leading-relaxed">
-                Discover our collection of thoughtfully designed, ethically made essentials.
+                Discover our curated selection of women's fashion and essentials. Products below are added by the admin and tagged for women.
               </p>
-            </div>
-            {/* Category Pills */}
-            <div className="flex justify-center space-x-6 mb-8">
-              {[
-                { key: "all", label: "All" },
-                { key: "women", label: "Women" },
-                { key: "men", label: "Men" },
-              ].map((category) => (
-                <button
-                  key={category.key}
-                  onClick={() => setSelectedCategory(category.key)}
-                  className={`px-6 py-2 text-sm tracking-wide transition-colors ${
-                    selectedCategory === category.key
-                      ? "text-stone-900 border-b-2 border-stone-900"
-                      : "text-stone-600 hover:text-stone-900"
-                  }`}
-                >
-                  {category.label}
-                </button>
-              ))}
             </div>
           </div>
         </div>
@@ -130,7 +101,7 @@ export default function ShopPage() {
                   <SelectItem value="over-200">Over $200</SelectItem>
                 </SelectContent>
               </Select>
-              {(selectedCategory !== "all" || priceRange !== "all") && (
+              {priceRange !== "all" && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="text-stone-500">
                   Clear
                 </Button>
@@ -178,7 +149,7 @@ export default function ShopPage() {
             </div>
           ) : sortedProducts.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-stone-600 mb-4 text-lg">No products found matching your filters.</p>
+              <p className="text-stone-600 mb-4 text-lg">No women's products found matching your filters.</p>
               <Button variant="outline" onClick={clearFilters} className="border-stone-300 text-stone-600 bg-transparent">
                 Clear Filters
               </Button>

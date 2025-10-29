@@ -7,6 +7,7 @@ import Header from "@/components/header"
 import SplashScreen from "@/components/splash-screen"
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import Navbar from "@/components/navbar"
 
 export default function HomePage() {
   const [showSplash, setShowSplash] = useState(true)
@@ -18,14 +19,15 @@ export default function HomePage() {
       setShowSplash(false)
     }
   }, [])
+
   if (showSplash) {
     return <SplashScreen />
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
+      <Navbar />
+ 
       {/* Hero Section */}
       <section className="relative h-[70vh] flex items-center justify-center bg-muted">
         <img
@@ -40,9 +42,11 @@ export default function HomePage() {
             Discover ethically-made fashion that transcends trends. Every piece tells a story of craftsmanship and
             conscious creation.
           </p>
-          <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-            Shop Collection
-          </Button>
+          <Link href="/shop">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              Shop Collection
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -51,39 +55,43 @@ export default function HomePage() {
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12 text-balance">Shop by Category</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="group cursor-pointer overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <img
-                    src="/placeholder.svg?key=fuvj4"
-                    alt="Women's Collection"
-                    className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
-                  <div className="absolute bottom-6 left-6 text-white">
-                    <h3 className="text-2xl font-bold mb-2">Women</h3>
-                    <p className="text-sm opacity-90">Effortless elegance</p>
+            <Link href="/women">
+              <Card className="group cursor-pointer overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-0">
+                  <div className="relative">
+                    <img
+                      src="/placeholder.svg?key=fuvj4"
+                      alt="Women's Collection"
+                      className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
+                    <div className="absolute bottom-6 left-6 text-white">
+                      <h3 className="text-2xl font-bold mb-2">Women</h3>
+                      <p className="text-sm opacity-90">Effortless elegance</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="group cursor-pointer overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <img
-                    src="/placeholder.svg?key=ychyp"
-                    alt="Men's Collection"
-                    className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
-                  <div className="absolute bottom-6 left-6 text-white">
-                    <h3 className="text-2xl font-bold mb-2">Men</h3>
-                    <p className="text-sm opacity-90">Modern essentials</p>
+            <Link href="/men">
+              <Card className="group cursor-pointer overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-0">
+                  <div className="relative">
+                    <img
+                      src="/placeholder.svg?key=ychyp"
+                      alt="Men's Collection"
+                      className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
+                    <div className="absolute bottom-6 left-6 text-white">
+                      <h3 className="text-2xl font-bold mb-2">Men</h3>
+                      <p className="text-sm opacity-90">Modern essentials</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>
