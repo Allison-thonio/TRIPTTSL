@@ -22,9 +22,15 @@ export function AdminAuthGuard({ children, redirectTo = "/auth/login" }: AdminAu
 
       try {
         const admin = JSON.parse(adminAuth)
-        const isValid = admin && admin.role === "admin"
-        
+        // Validate role and expiry (if present)
+        const now = Date.now()
+        const expiresAt = admin?.expiresAt ? Number(admin.expiresAt) : null
+        const notExpired = !expiresAt || expiresAt > now
+
+        const isValid = admin && admin.role === "admin" && notExpired
+
         if (!isValid) {
+          // If expired, remove stale auth
           localStorage.removeItem("adminAuth")
           router.push(redirectTo)
           return

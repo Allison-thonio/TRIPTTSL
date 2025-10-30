@@ -30,26 +30,7 @@ export default function CustomerLogin() {
     setError("")
 
     try {
-        // Check if this is an admin login
-        const adminCredentials = {
-          email: "admin@tttsl.com",
-          password: "admin123"
-        }
-      
-        if (formData.email === adminCredentials.email && formData.password === adminCredentials.password) {
-          localStorage.setItem(
-            "adminAuth",
-            JSON.stringify({
-              email: adminCredentials.email,
-              role: "admin",
-              loginTime: new Date().toISOString(),
-            })
-          )
-          router.push("/admin/dashboard")
-          return
-        }
-
-        // If not admin, check regular customer login
+        // Customer login: check regular customer credentials
       const users = JSON.parse(localStorage.getItem("customers") || "[]")
       const user = users.find((u: any) => u.email === formData.email && u.password === formData.password)
 
@@ -102,8 +83,9 @@ export default function CustomerLogin() {
       <nav className="border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="text-2xl font-bold text-foreground">
-              TTTSL
+            <Link href="/" className="text-2xl font-bold text-foreground flex items-baseline gap-3">
+              <span>TTTSL</span>
+              <span className="swanky-brand text-sm leading-none">swanky by ellery</span>
             </Link>
             <Link href="/shop" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Continue Shopping
@@ -118,9 +100,11 @@ export default function CustomerLogin() {
 
           <Card className="border-0 shadow-lg">
             <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-2xl">Sign In</CardTitle>
-              <CardDescription>Enter your email and password to access your account</CardDescription>
-            </CardHeader>
+                <CardTitle className="text-2xl">Sign In</CardTitle>
+                <CardDescription>Enter your email and password to access your account</CardDescription>
+                {/* gold accent underline to match admin style */}
+                <div className="mx-auto mt-2 swanky-underline" style={{ width: '4rem' }} />
+              </CardHeader>
             <CardContent className="space-y-6">
               <Button
                 variant="outline"
@@ -206,7 +190,7 @@ export default function CustomerLogin() {
 
                 {error && <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</div>}
 
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
+                <Button type="submit" variant="swanky" className="w-full swanky-focus" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>

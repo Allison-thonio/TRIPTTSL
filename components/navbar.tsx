@@ -24,8 +24,9 @@ const Navbar = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-light tracking-wide text-stone-900">
-                TTTSL
+              <Link href="/" className="text-2xl font-light tracking-wide text-stone-900 flex items-baseline gap-3">
+                <span>TTTSL</span>
+                <span className="swanky-brand text-sm leading-none">swanky by ellery</span>
               </Link>
             </div>
 
@@ -40,7 +41,7 @@ const Navbar = () => {
                       className={
                         isActive
                           ? 'text-stone-900 font-medium border-b-2 border-stone-900 pb-1'
-                          : 'text-stone-600 hover:text-stone-900 transition-colors text-sm tracking-wide'
+                          : 'text-stone-600 swanky-link transition-colors text-sm tracking-wide'
                       }
                     >
                       {link.label}
@@ -54,13 +55,13 @@ const Navbar = () => {
               <SearchBar />
               <Link
                 href="/auth/login"
-                className="text-stone-600 hover:text-stone-900 transition-colors text-sm tracking-wide"
+                className="text-stone-600 swanky-link swanky-focus text-sm tracking-wide"
               >
                 ACCOUNT
               </Link>
               <Link
                 href="/cart"
-                className="text-stone-600 hover:text-stone-900 transition-colors text-sm tracking-wide"
+                className="text-stone-600 swanky-link swanky-focus text-sm tracking-wide"
               >
                 CART (0)
               </Link>

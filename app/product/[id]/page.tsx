@@ -343,7 +343,7 @@ export default function SearchPage() {
                             <Badge variant="outline" className="text-xs capitalize">
                               {product.category}
                             </Badge>
-                            <Button size="sm" disabled={!product.inStock}>
+                            <Button variant="swanky" size="sm" disabled={!product.inStock} className="swanky-focus">
                               {product.inStock ? "Add to Cart" : "Out of Stock"}
                             </Button>
                           </div>

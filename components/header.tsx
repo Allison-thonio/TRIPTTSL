@@ -11,22 +11,22 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <Link href="/" className="text-2xl font-bold text-foreground flex items-baseline gap-3">
               <span>TTTSL</span>
-              <span className="swanky-brand text-pink-500 text-sm leading-none">swanky by ellery</span>
+              <span className="swanky-brand text-sm leading-none">swanky by ellery</span>
             </Link>
           </div>
 
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              <Link href="/shop" className="text-foreground hover:text-primary transition-colors">
+              <Link href="/shop" className="text-foreground swanky-link">
                 Shop
               </Link>
-              <Link href="/women" className="text-foreground hover:text-primary transition-colors">
+              <Link href="/women" className="text-foreground swanky-link">
                 Women
               </Link>
-              <Link href="/men" className="text-foreground hover:text-primary transition-colors">
+              <Link href="/men" className="text-foreground swanky-link">
                 Men
               </Link>
-              <Link href="/about" className="text-foreground hover:text-primary transition-colors">
+              <Link href="/about" className="text-foreground swanky-link">
                 About
               </Link>
             </div>
@@ -34,10 +34,10 @@ export default function Header() {
 
           <div className="flex items-center space-x-4">
             <SearchBar />
-            <Link href="/auth/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/auth/login" className="text-sm text-muted-foreground swanky-link swanky-focus">
               Account
             </Link>
-            <Link href="/cart" className="text-foreground hover:text-primary transition-colors">
+            <Link href="/cart" className="text-foreground swanky-link swanky-focus">
               Cart (0)
             </Link>
           </div>
