@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { ShoppingCart } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { SearchBar } from "@/components/search-bar"
 
 export default function Header() {
@@ -9,9 +11,9 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
-            <Link href="/" className="text-2xl font-bold text-foreground flex items-baseline gap-3">
+            <Link href="/" className="text-2xl font-bold text-foreground flex flex-col md:flex-row items-baseline gap-0 md:gap-3">
               <span>TTTSL</span>
-              <span className="swanky-brand text-sm leading-none">swanky by ellery</span>
+              <span className="swanky-brand text-sm leading-none md:ml-3 md:inline block md:relative absolute left-0 top-full w-full text-center md:text-left">swanky by ellery</span>
             </Link>
           </div>
 
@@ -34,11 +36,15 @@ export default function Header() {
 
           <div className="flex items-center space-x-4">
             <SearchBar />
-            <Link href="/auth/login" className="text-sm text-muted-foreground swanky-link swanky-focus">
-              Account
+            <Link href="/auth/login" className="swanky-link swanky-focus">
+              <Avatar>
+                <AvatarFallback>
+                  <span role="img" aria-label="profile">👤</span>
+                </AvatarFallback>
+              </Avatar>
             </Link>
-            <Link href="/cart" className="text-foreground swanky-link swanky-focus">
-              Cart (0)
+            <Link href="/cart" className="swanky-link swanky-focus flex items-center">
+              <ShoppingCart className="size-6" aria-label="cart" />
             </Link>
           </div>
         </div>
