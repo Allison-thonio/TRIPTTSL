@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
+import { getSiteImage } from "@/lib/utils"
 
 type Product = {
   id: number
@@ -24,9 +25,9 @@ export default function StackCards() {
       if (mapped.length === 0) {
         // fallback placeholders
         setCards([
-          { id: 1, name: "New Collection", image: "/placeholder.svg?key=stack1" },
-          { id: 2, name: "Featured", image: "/placeholder.svg?key=stack2" },
-          { id: 3, name: "Best Seller", image: "/placeholder.svg?key=stack3" },
+          { id: 1, name: "New Collection", image: getSiteImage("stack1") },
+          { id: 2, name: "Featured", image: getSiteImage("stack2") },
+          { id: 3, name: "Best Seller", image: getSiteImage("stack3") },
         ])
       } else {
         setCards(mapped.slice(0, 6))

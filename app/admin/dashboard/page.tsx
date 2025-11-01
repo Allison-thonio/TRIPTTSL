@@ -11,9 +11,33 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
-import Header from "@/components/header"
+// Simple inline Header component to replace `import Header from "@/components/header"`
+function Header(): JSX.Element {
+  return (
+    <header className="border-b border-border">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 flex items-center justify-center bg-muted text-muted-foreground rounded">
+            {/* lightweight placeholder logo */}
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden>
+              <path d="M12 2L2 7v6c0 5 5 9 10 9s10-4 10-9V7l-10-5z" />
+            </svg>
+          </div>
+          <span className="font-semibold text-foreground">TTTSL Admin</span>
+        </div>
+
+        <nav className="flex items-center gap-4 text-sm text-muted-foreground">
+          <a href="/" className="hover:text-primary transition-colors">View Store</a>
+          <a href="/admin" className="hover:text-primary transition-colors">Dashboard</a>
+        </nav>
+      </div>
+      </header>
+  )
+}
+
 import { useRouter } from "next/navigation"
 import { AdminAuthGuard } from "@/components/admin-auth-guard"
+import { getSiteImage } from "@/lib/utils"
 import {
   Package,
   Users,
@@ -54,6 +78,7 @@ export default function AdminDashboard() {
   })
   const [recentOrders, setRecentOrders] = useState([])
   const [products, setProducts] = useState<Product[]>([])
+  const [siteImages, setSiteImages] = useState<{ [k: string]: string }>({})
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [newProduct, setNewProduct] = useState({
@@ -77,15 +102,39 @@ export default function AdminDashboard() {
   const loadDashboardData = () => {
     const savedProducts = JSON.parse(localStorage.getItem("adminProducts") || "[]")
     const savedOrders = JSON.parse(localStorage.getItem("adminOrders") || "[]")
+    const savedSiteImages = JSON.parse(localStorage.getItem("siteImages") || "{}")
 
     setProducts(savedProducts)
     setRecentOrders(savedOrders)
+  setSiteImages(savedSiteImages)
     setStats({
       totalProducts: savedProducts.length,
       totalOrders: savedOrders.length,
       totalCustomers: savedOrders.length > 0 ? new Set(savedOrders.map((o: any) => o.customer)).size : 0,
       totalRevenue: savedOrders.reduce((sum: number, order: any) => sum + order.total, 0),
     })
+  }
+
+  const handleSiteImageUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      setSiteImages((prev) => ({ ...prev, [key]: reader.result as string }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSaveSiteImages = () => {
+    localStorage.setItem("siteImages", JSON.stringify(siteImages))
+    alert("Site images saved. Refresh pages to see updates where applicable.")
+  }
+
+  const handleResetSiteImage = (key: string) => {
+    const copy = { ...siteImages }
+    delete copy[key]
+    setSiteImages(copy)
+    localStorage.setItem("siteImages", JSON.stringify(copy))
   }
 
   const handleLogout = () => {
@@ -336,6 +385,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="orders">Recent Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="site-images">Site Images</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
@@ -700,6 +750,52 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="site-images">
+            <Card>
+              <CardHeader>
+                <CardTitle>Site Images</CardTitle>
+                <CardDescription>Manage global/site image placeholders (hero, stacks, logo)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">Upload images to replace site placeholders. Images are stored in your browser's localStorage for this site.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { key: "stack1", label: "Stack Card 1" },
+                    { key: "stack2", label: "Stack Card 2" },
+                    { key: "stack3", label: "Stack Card 3" },
+                    { key: "hero1", label: "Homepage Hero" },
+                    { key: "logo", label: "Site Logo" },
+                  ].map((item) => (
+                    <div key={item.key} className="p-4 border border-border rounded-md flex items-center gap-4">
+                      <div className="w-28 h-20 bg-muted rounded overflow-hidden flex items-center justify-center">
+                        <img src={siteImages[item.key] || getSiteImage(item.key)} alt={item.label} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="mb-2 font-medium">{item.label}</div>
+                        <div className="flex items-center gap-2">
+                          <Input type="file" accept="image/*" onChange={(e) => handleSiteImageUpload(item.key, e)} />
+                          <Button onClick={() => handleResetSiteImage(item.key)} variant="ghost" size="sm">
+                            Reset
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 flex gap-2">
+                  <Button onClick={handleSaveSiteImages}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Images
+                  </Button>
+                  <Button variant="outline" onClick={() => { setSiteImages(JSON.parse(localStorage.getItem("siteImages")||"{}")) }}>
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
