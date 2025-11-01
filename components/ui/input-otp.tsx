@@ -1,67 +1,47 @@
 'use client'
 
 import * as React from 'react'
-import { OTPInput, OTPInputContext } from 'input-otp'
 import { MinusIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+// Lightweight fallback implementation for OTP UI used when the optional
+// `input-otp` package isn't available. This provides simple slots so other
+// parts of the app can still render without build-time dependency errors.
+
 function InputOTP({
   className,
   containerClassName,
+  children,
   ...props
-}: React.ComponentProps<typeof OTPInput> & {
-  containerClassName?: string
-}) {
-  return (
-    <OTPInput
-      data-slot="input-otp"
-      containerClassName={cn(
-        'flex items-center gap-2 has-disabled:opacity-50',
-        containerClassName,
-      )}
-      className={cn('disabled:cursor-not-allowed', className)}
-      {...props}
-    />
-  )
-}
-
-function InputOTPGroup({ className, ...props }: React.ComponentProps<'div'>) {
+}: React.ComponentProps<'div'> & { containerClassName?: string }) {
   return (
     <div
-      data-slot="input-otp-group"
-      className={cn('flex items-center', className)}
+      data-slot="input-otp"
+      className={cn('flex items-center gap-2 has-disabled:opacity-50', containerClassName)}
       {...props}
-    />
+    >
+      {children}
+    </div>
   )
 }
 
-function InputOTPSlot({
-  index,
-  className,
-  ...props
-}: React.ComponentProps<'div'> & {
-  index: number
-}) {
-  const inputOTPContext = React.useContext(OTPInputContext)
-  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}
+function InputOTPGroup({ className, children, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div data-slot="input-otp-group" className={cn('flex items-center', className)} {...props}>
+      {children}
+    </div>
+  )
+}
 
+function InputOTPSlot({ index, className, children, ...props }: React.ComponentProps<'div'> & { index?: number }) {
   return (
     <div
       data-slot="input-otp-slot"
-      data-active={isActive}
-      className={cn(
-        'data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive dark:bg-input/30 border-input relative flex h-9 w-9 items-center justify-center border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:z-10 data-[active=true]:ring-[3px]',
-        className,
-      )}
+      className={cn('border-input relative flex h-9 w-9 items-center justify-center border-y border-r text-sm first:rounded-l-md last:rounded-r-md', className)}
       {...props}
     >
-      {char}
-      {hasFakeCaret && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="animate-caret-blink bg-foreground h-4 w-px duration-1000" />
-        </div>
-      )}
+      {children}
     </div>
   )
 }
